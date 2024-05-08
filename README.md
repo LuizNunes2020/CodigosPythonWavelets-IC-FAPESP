@@ -1,1 +1,3 @@
-Faca uma introducao para o meu diretorio do github que tem os todos os exemplos acima que vc fez. 
+Bem-vindo ao diretório GitHub que abriga todas as aplicações e exemplos de código em Python que desenvolvi ao longo do meu projeto científico.
+
+
