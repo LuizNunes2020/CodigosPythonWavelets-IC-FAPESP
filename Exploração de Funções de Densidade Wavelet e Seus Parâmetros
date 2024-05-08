@@ -1,0 +1,48 @@
+No exemplo que desenvolvi, explorei a aplicação das funções de densidade wavelet baseadas nas wavelets COIF5 e DAUB2
+ Primeiramente, criei uma função em Python que calcula a densidade wavelet modificada. Para isso, utilizei a função wavefun da biblioteca PyWavelets, que me fornece diretamente as funções de escala necessárias para calcular a densidade.
+Utilizei a função de escala obtida para calcular a densidade, aplicando uma convolução da função de escala com ela mesma invertida. Esse processo me permitiu obter uma medida da densidade de energia do sinal representado pela wavelet.
+Modifiquei a densidade resultante usando um parâmetro r, que ajusta a densidade conforme a equação dada. Isso foi feito para explorar como diferentes valores de r afetam a distribuição da densidade, o que é crucial para aplicações que requerem ajustes finos na análise de sinais.
+Plotei as densidades modificadas para as wavelets COIF5 e DAUB2 em um gráfico, com dois valores diferentes de r, permitindo-me visualizar claramente as diferenças nas densidades resultantes.
+
+import numpy as np
+import pywt
+import matplotlib.pyplot as plt
+
+def get_density_wavelet(wavelet_name, r, x):
+    """
+    Calcula a densidade modificada para uma wavelet específica.
+
+    Parâmetros:
+        wavelet_name (str): Nome da wavelet.
+        r (float): Parâmetro que influencia a densidade.
+        x (np.array): Array de pontos onde a densidade é calculada.
+    
+    Retorna:
+        np.array: Densidade modificada calculada nos pontos x.
+    """
+    wavelet = pywt.Wavelet(wavelet_name)
+    phi, psi = wavelet.wavefun(level=5)  # Obter a função de escala e wavelet
+    # Calcular a densidade baseada na função de escala
+    density = np.convolve(phi, phi[::-1], mode='full')
+    # Modificar a densidade conforme o parâmetro r
+    modified_density = (1 + r**2) * density / (2 * np.pi * (1 - r**2))
+    # Interpolar para ajustar ao domínio x
+    return np.interp(x, np.linspace(min(x), max(x), len(modified_density)), modified_density)
+
+# Definir o domínio de x e valores de r
+x = np.linspace(-2, 2, 400)
+r_values = [0.5, 0.7]
+wavelets = ['coif5', 'db2']  # COIF5 corresponde a coiflets com 5 vanishing moments (similar a COIF12 em escopo)
+
+plt.figure(figsize=(10, 6))
+for wavelet, r in zip(wavelets, r_values):
+    density = get_density_wavelet(wavelet, r, x)
+    plt.plot(x, density, label=f'{wavelet.upper()} r={r}')
+
+plt.title('Density Plots Based on COIF5 and DAUB2 Wavelets')
+plt.xlabel('x')
+plt.ylabel('Density')
+plt.legend()
+plt.grid(True)
+plt.savefig("Figura_7_3.png")
+plt.show()
