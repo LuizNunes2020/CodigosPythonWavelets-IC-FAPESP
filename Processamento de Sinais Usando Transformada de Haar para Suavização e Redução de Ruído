@@ -1,0 +1,78 @@
+Explorei o uso da Transformada de Haar para processar sinais. Utilizei essa técnica específica para entender como podemos decompor um sinal em suas componentes fundamentais de baixa e alta frequência e, posteriormente, manipular esses componentes para atingir efeitos desejados, como a suavização do sinal.
+
+Geração do Sinal: Criei um sinal sintético que combina duas funções senoidais com diferentes frequências e adicionei ruído gaussiano. Este sinal serve como base para a demonstração, representando dados que poderiam ser encontrados em aplicações reais, como sinais biomédicos ou sinais em telecomunicações.
+
+Transformada de Haar: Apliquei a Transformada de Haar ao sinal. Esta transformada é eficaz para decompor o sinal em uma série de coeficientes que representam as informações de baixa frequência (aproximações) e alta frequência (detalhes) do sinal.
+
+Modificação dos Coeficientes: Modifiquei os coeficientes de alta frequência, reduzindo-os pela metade. Essa etapa demonstra como podemos manipular esses coeficientes para impactar o sinal reconstruído. Reduzindo os coeficientes de alta frequência, estou suavizando o sinal e reduzindo a influência do ruído e das variações rápidas.
+
+Reconstrução do Sinal: Utilizei a inversa da Transformada de Haar para reconstruir o sinal a partir dos coeficientes modificados. O resultado é uma versão mais suavizada do sinal original, mostrando como alterações nos coeficientes afetam o resultado final.
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def haar_transform(data):
+    """
+    Aplica a Transformada de Haar ao vetor de dados.
+    """
+    n = len(data)
+    output = np.zeros(n)
+    while n > 1:
+        n //= 2
+        for i in range(n):
+            output[i] = (data[2*i] + data[2*i+1]) / np.sqrt(2)
+            output[n+i] = (data[2*i] - data[2*i+1]) / np.sqrt(2)
+        data[:2*n] = output[:2*n]
+    return data
+
+def inverse_haar_transform(transformed):
+    """
+    Realiza a Transformada Inversa de Haar.
+    """
+    length = len(transformed)
+    n = 1
+    while n < length:
+        temp_array = np.copy(transformed[:n*2])
+        for i in range(n):
+            transformed[2*i] = (temp_array[i] + temp_array[n+i]) / np.sqrt(2)
+            transformed[2*i+1] = (temp_array[i] - temp_array[n+i]) / np.sqrt(2)
+        n *= 2
+    return transformed
+
+def modify_coefficients(transformed):
+    """
+    Modifica os coeficientes de alta frequência para demonstrar o efeito na reconstrução.
+    """
+    transformed[int(len(transformed)/2):] *= 0.5
+    return transformed
+
+# Geração de uma série temporal de exemplo
+t = np.linspace(0, 2*np.pi, 256)
+signal = np.sin(t) + 0.5 * np.sin(4 * t) + np.random.normal(scale=0.2, size=256)
+
+# Aplicação da Transformada de Haar
+transformed_signal = haar_transform(np.copy(signal))
+
+# Modificação dos coeficientes para reduzir detalhes de alta frequência
+modified_transformed_signal = modify_coefficients(np.copy(transformed_signal))
+
+# Reconstrução da série temporal com os coeficientes modificados
+reconstructed_signal = inverse_haar_transform(modified_transformed_signal)
+
+# Plotagem dos dados originais, transformados e reconstruídos para visualização
+plt.figure(figsize=(18, 6))
+
+plt.subplot(1, 3, 1)
+plt.plot(t, signal, color='blue')
+plt.title("Sinal Original")
+
+plt.subplot(1, 3, 2)
+plt.plot(t, transformed_signal, color='red')
+plt.title("Sinal Transformado")
+
+plt.subplot(1, 3, 3)
+plt.plot(t, reconstructed_signal, color='green')
+plt.title("Sinal Reconstruído Após Modificação")
+
+plt.tight_layout()
+plt.show()
