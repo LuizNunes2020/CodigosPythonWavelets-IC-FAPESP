@@ -1,0 +1,52 @@
+Utilizei a Transformada de Daubechies, especificamente a Db4, para decompor e posteriormente reconstruir uma série temporal.
+Inicialmente, apliquei a Transformada de Daubechies à série temporal gerada aleatoriamente. Essa transformação quebrou a série em vários coeficientes que representam diferentes níveis de detalhe e aproximação do sinal original. O objetivo era capturar tanto a estrutura geral do sinal quanto as flutuações menores, que podem ser ruído ou informações importantes.
+Após a decomposição, manipulei os coeficientes de detalhe, reduzindo sua magnitude pela metade. Este passo foi crucial porque permitiu suavizar a série, atenuando os efeitos do ruído e outras flutuações menores que não são essenciais para a análise principal do sinal.
+Com os coeficientes modificados, procedi à reconstrução da série. Utilizei a Transformada Inversa de Daubechies, que recompôs a série a partir dos coeficientes ajustados. O resultado foi uma série mais suave em comparação com a original, mostrando que a manipulação dos coeficientes é eficaz para alterar características específicas do sinal.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt  # Importa PyWavelets
+
+def daubechies_transform(data, wavelet='db4'):
+    """
+    Aplica a Transformada de Daubechies a um vetor de dados.
+    """
+    coeffs = pywt.wavedec(data, wavelet, mode='symmetric')
+    return coeffs
+
+def inverse_daubechies_transform(coeffs, wavelet='db4'):
+    """
+    Realiza a Transformada Inversa de Daubechies.
+    """
+    reconstructed = pywt.waverec(coeffs, wavelet, mode='symmetric')
+    return reconstructed
+
+# Geração de uma série temporal de exemplo
+np.random.seed(42)
+data = np.random.normal(size=256)  # Série temporal estacionária de exemplo com mais pontos
+
+# Aplicação da Transformada de Daubechies
+coeffs = daubechies_transform(data)
+
+# Identificação e manipulação de coeficientes
+# Suponha que queremos suavizar o sinal, podemos atenuar coeficientes de detalhe
+coeffs[1:] = [np.array(coeff) * 0.5 for coeff in coeffs[1:]]
+
+# Reconstrução da Série Temporal após a modificação dos coeficientes
+reconstructed_data = inverse_daubechies_transform(coeffs)
+
+# Plotagem dos dados originais e reconstruídos
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.plot(data, label='Dados Originais', color='blue')
+plt.title('Dados Originais')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(reconstructed_data, label='Dados Reconstruídos', color='green')
+plt.title('Dados Reconstruídos Após Modificação dos Coeficientes')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
