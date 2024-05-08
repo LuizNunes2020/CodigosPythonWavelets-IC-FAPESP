@@ -1,0 +1,52 @@
+Neste exemplo, explorei como gerar e analisar três tipos distintos de séries temporais em Python: ruído branco, processo de média móvel (MA), e processo autoregressivo (AR).
+Inicialmente, gerei uma série temporal de ruído branco, que é um tipo de série temporal onde cada valor é uma observação aleatória independente. Isso serve como uma boa base para análises mais complexas porque o ruído branco não possui correlação temporal.
+Em seguida, criei um processo de média móvel de ordem cinco (MA(5)). Para isso, usei a função de convolução para combinar o ruído branco com um conjunto de coeficientes, refletindo como valores passados influenciam o valor atual.
+Por último, desenvolvi um processo autoregressivo de primeira ordem (AR(1)). Aqui, cada ponto na série temporal é uma função do ponto anterior, modulado por um coeficiente que define o grau de relação temporal, mais um termo de ruído. Isso é especialmente relevante para dados que são continuamente influenciados por seus valores anteriores.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Configurações iniciais
+n = 100  # Número de pontos de dados
+sigma = 1.0  # Desvio padrão (para o ruído branco)
+q = 5  # Ordem do processo MA
+phi = 0.7  # Coeficiente para o processo AR
+
+# (i) Ruído Branco
+Z = np.random.normal(0, sigma, n)
+plt.figure(figsize=(12, 4))
+plt.plot(Z, label='Ruído Branco (WN)')
+plt.xlabel('Tempo')
+plt.ylabel('Amplitude')
+plt.title('Ruído Branco')
+plt.legend()
+plt.savefig('ruido_branco.png')
+plt.show()
+
+# (ii) Processo de Média Móvel MA(q)
+theta = np.array([0.2, 0.3, 0.1, -0.1, -0.2])  # Coeficientes MA
+X_ma = np.convolve(Z, theta, mode='same')  # Uso de convolução para simplificar a implementação
+plt.figure(figsize=(12, 4))
+plt.plot(X_ma, label=f'MA({q})')
+plt.xlabel('Tempo')
+plt.ylabel('Amplitude')
+plt.title(f'Processo de Média Móvel MA({q})')
+plt.legend()
+plt.savefig('media_movel.png')
+plt.show()
+
+# (iii) Processo Autoregressivo AR(1)
+X_ar = np.zeros(n)
+for t in range(1, n):
+    X_ar[t] = phi * X_ar[t - 1] + Z[t]
+plt.figure(figsize=(12, 4))
+plt.plot(X_ar, label=f'AR(1) com φ = {phi}')
+plt.xlabel('Tempo')
+plt.ylabel('Amplitude')
+plt.title(f'Processo Autoregressivo AR(1) com φ = {phi}')
+plt.legend()
+plt.savefig('autoregressivo.png')
+plt.show()
+
+print("Gráficos salvos como 'ruido_branco.png', 'media_movel.png' e 'autoregressivo.png'")
