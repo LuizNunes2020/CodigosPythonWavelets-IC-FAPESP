@@ -1,0 +1,71 @@
+Demonstrei como processar uma série temporal usando a Transformada de Haar para decompor, limpar ruídos e, posteriormente, reconstruir a série.
+Inicialmente, apliquei a Transformada de Haar à série temporal simulada. Esta transformação me permitiu decompor a série em componentes de diferentes frequências, separando as informações mais significativas (baixas frequências) dos detalhes menores ou ruídos (altas frequências).
+Após a decomposição, implementei um passo de limiarização. Aqui, defini um limiar baseado no valor máximo dos coeficientes obtidos e zerei todos os coeficientes que estavam abaixo desse limiar. Esse processo é essencial para reduzir o ruído na série, já que remove as pequenas flutuações que são menos prováveis de representar informações importantes.
+Com os coeficientes filtrados, procedi à reconstrução da série. A Transformada Inversa de Haar foi usada para reverter os dados ao seu formato original, agora com menos ruído e uma representação mais limpa e suavizada dos dados originais.
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def haar_transform(data):
+    """
+    Aplica a Transformada de Haar a um vetor de dados.
+    """
+    n = len(data)
+    output = np.zeros(n)
+    while n > 1:
+        n //= 2
+        for i in range(n):
+            output[i] = (data[2*i] + data[2*i+1]) / np.sqrt(2)
+            output[n+i] = (data[2*i] - data[2*i+1]) / np.sqrt(2)
+        data[:2*n] = output[:2*n]
+    return data
+
+def inverse_haar_transform(transformed):
+    """
+    Realiza a Transformada Inversa de Haar.
+    """
+    length = len(transformed)
+    n = 1
+    while n < length:
+        temp_array = np.copy(transformed[:n*2])
+        for i in range(n):
+            transformed[2*i] = (temp_array[i] + temp_array[n + i]) / np.sqrt(2)
+            transformed[2*i+1] = (temp_array[i] - temp_array[n + i]) / np.sqrt(2)
+        n *= 2
+    return transformed
+
+# Geração de uma série temporal de exemplo
+np.random.seed(42)
+data = np.random.normal(size=256)  # Série temporal maior para mais detalhes
+
+# Aplicação da Transformada de Haar
+transformed_data = haar_transform(np.copy(data))
+
+# Limiarização para remover ruídos
+threshold = 0.5 * np.max(np.abs(transformed_data))
+transformed_data[abs(transformed_data) < threshold] = 0
+
+# Reconstrução da Série Temporal
+reconstructed_data = inverse_haar_transform(np.copy(transformed_data))
+
+# Plotagem dos dados originais, transformados e reconstruídos para visualização
+plt.figure(figsize=(18, 6))
+plt.subplot(1, 3, 1)
+plt.plot(data, label="Original Data", color='blue')
+plt.title("Dados Originais")
+plt.legend()
+
+plt.subplot(1, 3, 2)
+plt.plot(transformed_data, label="Transformed Data", color='red')
+plt.title("Dados Transformados")
+plt.legend()
+
+plt.subplot(1, 3, 3)
+plt.plot(reconstructed_data, label="Reconstructed Data", color='green')
+plt.title("Dados Reconstruídos")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
