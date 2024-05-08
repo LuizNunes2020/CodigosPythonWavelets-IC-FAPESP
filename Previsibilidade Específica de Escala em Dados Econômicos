@@ -1,0 +1,47 @@
+Neste exemplo, explorei como analisar a previsibilidade específica de escala em dados econômicos usando Python. Fiz isso simulando dados que representam retornos de mercado e incerteza, que incorporam ciclos de longo prazo e flutuações aleatórias.
+ Primeiro, gerei séries temporais para os retornos de mercado e para a incerteza, usando funções senoidais para representar ciclos de longo prazo misturados com ruído gaussiano. Escolhi essa abordagem para capturar dinâmicas complexas que são típicas em dados econômicos reais.
+Em seguida, calculei a correlação cruzada entre as séries de retornos de mercado e de incerteza. Isso foi feito para diferentes defasagens, o que me permitiu examinar como esses dois conjuntos de dados interagem ao longo do tempo e em diferentes escalas.
+Após calcular as correlações, criei gráficos para visualizar tanto as séries temporais originais quanto os resultados das correlações cruzadas. Isso me ajudou a visualizar claramente a relação entre os dados e suas mudanças em diferentes escalas.
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import correlate
+
+# Definindo a semente para reprodutibilidade
+np.random.seed(0)
+
+# Simulando retornos de mercado e variáveis de incerteza sintéticas
+t = np.arange(0, 400)
+market_returns = np.sin(0.02 * np.pi * t) + np.random.normal(0, 0.5, len(t))  # Ciclo longo + ruído
+uncertainty = np.sin(0.05 * np.pi * t) + np.random.normal(0, 0.3, len(t))  # Ciclo mais curto + ruído
+
+# Calcular a correlação específica de escala em diferentes defasagens
+lags = np.arange(-100, 100, 1)
+corr = correlate(market_returns, uncertainty, mode='full') / len(market_returns)
+corr_centered = corr[len(corr)//2 - 100 : len(corr)//2 + 100]
+
+# Visualizar os retornos de mercado, incerteza e sua correlação
+fig, axs = plt.subplots(3, 1, figsize=(14, 10))
+axs[0].plot(t, market_returns, label='Retornos de Mercado')
+axs[0].set_title('Retornos de Mercado Simulados')
+axs[0].set_xlabel('Tempo')
+axs[0].set_ylabel('Retornos')
+axs[0].legend()
+
+axs[1].plot(t, uncertainty, label='Incerteza', color='orange')
+axs[1].set_title('Incerteza Simulada')
+axs[1].set_xlabel('Tempo')
+axs[1].set_ylabel('Nível de Incerteza')
+axs[1].legend()
+
+axs[2].plot(lags, corr_centered, label='Correlação Cruzada', color='green')
+axs[2].set_title('Correlação Cruzada Entre Retornos de Mercado e Incerteza')
+axs[2].set_xlabel('Defasagem')
+axs[2].set_ylabel('Correlação')
+axs[2].legend()
+
+plt.tight_layout()
+plt.show()
