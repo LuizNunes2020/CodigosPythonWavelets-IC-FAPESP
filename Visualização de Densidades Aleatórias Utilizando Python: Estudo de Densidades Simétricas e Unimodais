@@ -1,0 +1,48 @@
+Neste exemplo, dediquei-me a explorar a representação gráfica de densidades aleatórias utilizando Python, focando especificamente em duas formas distintas: uma densidade simétrica e uma densidade unimodal.
+Primeiro, gerei uma densidade simétrica dentro do intervalo [-1, 1] usando uma função senoidal modificada. Escolhi essa função porque ela produz um padrão claro de simetria, que é fundamental para estudar fenômenos onde a simetria desempenha um papel crucial, como em certos processos físicos e matemáticos.
+Em seguida, criei uma densidade unimodal utilizando uma mistura de duas distribuições gaussianas. Esta parte do experimento foi destinada a ilustrar como diferentes parâmetros das gaussianas (como média e desvio padrão) influenciam a forma da densidade resultante. Optei por essa abordagem para mostrar a flexibilidade das gaussianas na modelagem de fenômenos que exibem um pico central ou uma tendência predominante.
+. A densidade simétrica ofereceu um exemplo claro de como a simetria pode ser visualizada e interpretada, enquanto a densidade unimodal demonstrou a capacidade de misturas gaussianas de modelar fenômenos que têm uma característica central dominante.
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Definição dos parâmetros para os gráficos
+x = np.linspace(-1.5, 1.5, 1000)
+
+# Densidade simétrica dentro de [-1,1] usando função senoidal
+y_symmetric = np.where(np.abs(x) <= 1, 0.5 * np.sin(3 * np.pi * x) + 0.5, 0)
+
+# Densidade unimodal usando uma mistura gaussiana
+sigma1, sigma2 = 0.1, 0.25
+y1 = np.exp(-x**2 / (2 * sigma1**2)) / np.sqrt(2 * np.pi * sigma1**2)
+y2 = np.exp(-((x - 0.5)**2) / (2 * sigma2**2)) / np.sqrt(2 * np.pi * sigma2**2)
+y_unimodal = y1 + y2
+y_unimodal /= y_unimodal.max()  # Normalização para escala de 0 a 1
+
+# Criação dos gráficos
+plt.figure(figsize=(12, 5))
+
+# Gráfico para densidade simétrica
+plt.subplot(1, 2, 1)
+plt.plot(x, y_symmetric, label="Densidade simétrica", color="blue")
+plt.fill_between(x, y_symmetric, where=(np.abs(x) <= 1), color='blue', alpha=0.3)
+plt.title("(a) Densidade simétrica em [-1,1]")
+plt.xlabel("x")
+plt.ylabel("Densidade")
+plt.grid(True)
+plt.legend()
+
+# Gráfico para densidade unimodal
+plt.subplot(1, 2, 2)
+plt.plot(x, y_unimodal, label="Densidade unimodal", color="green")
+plt.fill_between(x, y_unimodal, where=(y_unimodal > 0), color='green', alpha=0.3)
+plt.title("(b) Densidade aleatória unimodal (mistura gaussiana)")
+plt.xlabel("x")
+plt.ylabel("Densidade")
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
