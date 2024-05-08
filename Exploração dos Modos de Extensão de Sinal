@@ -1,0 +1,36 @@
+ Neste código, apresento uma ilustração visual dos vários modos de extensão de sinal suportados pela biblioteca PyWavelets. A escolha do modo de extensão de sinal ideal depende das características específicas do sinal com o qual estou trabalhando. Para o sinal que criei, um perfil parabólico, observei que certos modos de extensão, como "periódico", "anti simétrico" e "zero", geram significativas descontinuidades. Essas descontinuidades resultam em coeficientes de contorno de grande amplitude nos coeficientes de detalhe da transformada wavelet discreta, o que é crucial para entender como diferentes modos afetam a análise de sinais em aplicações práticas.
+
+import numpy as np
+from matplotlib import pyplot as plt
+from pywt._doc_utils import boundary_mode_subplot
+
+# Geração de um sinal sintético de teste
+x = 5 - np.linspace(-1.9, 1.1, 9)**2  # Parábola invertida como sinal de teste
+
+# Criação da figura com um subplot para cada modo de extensão de sinal
+fig, axes = plt.subplots(3, 3, figsize=(10, 6))
+plt.subplots_adjust(hspace=0.5, wspace=0.5)  # Ajuste no espaçamento entre subplots
+axes = axes.ravel()
+
+# Demonstração dos diferentes modos de extensão de sinal
+modes = ['symmetric', 'reflect', 'periodic', 'antisymmetric', 'antireflect', 'periodization', 'smooth', 'constant', 'zero']
+mode_descriptions = [
+    "Symmetric: Espelha o sinal nas bordas.",
+    "Reflect: Sem espelhamento na última amostra.",
+    "Periodic: Estende considerando o sinal como periódico.",
+    "Antisymmetric: Extensão anti-simétrica (não espelhada).",
+    "Antireflect: Anti-reflexão sem a última amostra.",
+    "Periodization: Semelhante ao periódico, mas ajustado para tamanhos de amostra.",
+    "Smooth: Suavização das extremidades.",
+    "Constant: Extende usando valor constante (zero).",
+    "Zero: Preenche com zeros."
+]
+
+# Configuração e plotagem para cada modo de extensão
+for idx, mode in enumerate(modes):
+    boundary_mode_subplot(x, mode, axes[idx], symw=mode not in ['smooth', 'constant', 'zero'])
+    axes[idx].set_title(f'{mode.capitalize()}')
+    axes[idx].set_xlabel(mode_descriptions[idx])
+
+plt.tight_layout()
+plt.show()
