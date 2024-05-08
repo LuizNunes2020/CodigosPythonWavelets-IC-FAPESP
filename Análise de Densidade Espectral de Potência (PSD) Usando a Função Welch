@@ -1,0 +1,45 @@
+Criei um sinal que é a soma de duas ondas senoidais com frequências de 5 Hz e 50 Hz e amplitudes de 1.0 e 0.5, respectivamente. Utilizei a função Welch da biblioteca SciPy para calcular a Densidade Espectral de Potência (PSD) do sinal. A PSD me mostra a distribuição da potência do sinal em diferentes frequências, permitindo-me identificar as componentes de frequência presentes no sinal. Ao executar o código, você pode observar dois gráficos: o primeiro mostra o sinal no domínio do tempo, onde é possível ver a combinação das duas ondas senoidais. O segundo gráfico mostra a PSD, na qual, devido à presença das ondas senoidais de 5 Hz e 50 Hz, surgem dois picos distintos nessas frequências, indicando claramente a presença dessas frequências no sinal.
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import welch
+
+# Configurações iniciais
+Fs = 500  # Taxa de amostragem em Hz
+T = 1 / Fs  # Intervalo de amostragem em segundos
+t = np.arange(0, 1, T)  # Vetor de tempo para 1 segundo
+
+# Definição das frequências e amplitudes das ondas senoidais
+f1, amp1 = 5, 1.0   # Frequência e amplitude da primeira onda (5 Hz, amplitude 1.0)
+f2, amp2 = 50, 0.5  # Frequência e amplitude da segunda onda (50 Hz, amplitude 0.5)
+
+# Geração das ondas senoidais
+y1 = amp1 * np.sin(2 * np.pi * f1 * t)  # Onda senoidal em 5 Hz
+y2 = amp2 * np.sin(2 * np.pi * f2 * t)  # Onda senoidal em 50 Hz
+
+# Combinação das duas ondas senoidais
+y = y1 + y2
+
+# Cálculo da Densidade Espectral de Potência (PSD) usando a função welch
+frequencies, Pxx = welch(y, Fs, nperseg=1024)
+
+# Plotagem dos resultados
+plt.figure(figsize=(12, 6))
+
+# Plotagem do sinal no domínio do tempo
+plt.subplot(2, 1, 1)
+plt.plot(t, y)
+plt.title("Sinal no Domínio do Tempo")
+plt.xlabel("Tempo (s)")
+plt.ylabel("Amplitude")
+
+# Plotagem da PSD no domínio da frequência
+plt.subplot(2, 1, 2)
+plt.semilogy(frequencies, Pxx)
+plt.title("Densidade Espectral de Potência (PSD)")
+plt.xlabel("Frequência (Hz)")
+plt.ylabel("PSD (V^2/Hz)")
+
+plt.tight_layout()  # Ajusta o layout para evitar sobreposição dos elementos gráficos
+plt.show()
+
