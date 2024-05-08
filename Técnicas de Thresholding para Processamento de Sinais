@@ -1,0 +1,55 @@
+No exemplo que desenvolvi, demonstrei como aplicar duas técnicas distintas de thresholding, conhecidas como "hard thresholding" e "soft thresholding".
+Criei duas funções distintas para aplicar as técnicas de thresholding. A função hard_threshold zera os valores do array cujo valor absoluto é menor que um limiar definido, o que é útil para eliminar ruídos de baixa magnitude. Por outro lado, a função soft_threshold, além de zerar valores abaixo de um limiar, também reduz o valor dos elementos que superam o limiar, aproximando-os de zero. Isso suaviza o sinal, mantendo uma transição mais gradual e preservando mais detalhes em comparação ao hard thresholding.
+Gerei um conjunto de dados linear, variando de -2 a 2, para representar um sinal. Apliquei ambas as técnicas de thresholding a este sinal com um limiar de 1. Isso me permitiu observar diretamente os efeitos de cada método de thresholding sobre o sinal original.
+Utilizei a biblioteca Matplotlib para plotar os resultados. Incluí o sinal original para comparação, permitindo uma visualização clara de como o hard thresholding simplesmente corta os valores, enquanto o soft thresholding ajusta os valores excedentes de forma mais suave.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def hard_threshold(x, lambda_):
+    """
+    Aplica thresholding duro em um array.
+    
+    Parâmetros:
+        x (np.array): Array de entrada.
+        lambda_ (float): Limiar para aplicação do thresholding.
+        
+    Retorna:
+        np.array: Array após a aplicação do thresholding duro.
+    """
+    return x * (np.abs(x) >= lambda_)
+
+def soft_threshold(x, lambda_):
+    """
+    Aplica thresholding suave em um array.
+    
+    Parâmetros:
+        x (np.array): Array de entrada.
+        lambda_ (float): Limiar para aplicação do thresholding.
+        
+    Retorna:
+        np.array: Array após a aplicação do thresholding suave.
+    """
+    return np.sign(x) * np.maximum(np.abs(x) - lambda_, 0)
+
+# Gerar valores para x
+x = np.linspace(-2, 2, 400)
+
+# Computar os valores thresholded
+hard_values = hard_threshold(x, 1)
+soft_values = soft_threshold(x, 1)
+
+# Configurar a plotagem
+plt.figure(figsize=(10, 6))
+plt.plot(x, x, label='Original', linestyle='--', color='gray')  # Adicionar linha original para comparação
+plt.plot(x, hard_values, label='Hard Thresholding', color='blue')
+plt.plot(x, soft_values, label='Soft Thresholding', color='red')
+plt.axhline(0, color='black', linewidth=0.5)
+plt.axvline(0, color='black', linewidth=0.5)
+plt.title('Comparison of Hard vs Soft Thresholding for $\\lambda = 1$')
+plt.xlabel('x')
+plt.ylabel('Thresholded Value')
+plt.legend()
+plt.grid(True)
+plt.show()
