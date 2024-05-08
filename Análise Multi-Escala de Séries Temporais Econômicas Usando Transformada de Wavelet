@@ -1,0 +1,39 @@
+Explorei a relação entre o PIB e os gastos do consumidor utilizando a Transformada de Wavelet Contínua (CWT) para analisar como essas variáveis interagem em diferentes escalas de tempo. 
+Primeiramente, gerei séries temporais simuladas para o PIB e os gastos do consumidor. Esses dados foram modelados com componentes cíclicos e ruído, imitando variações econômicas reais que são influenciadas por diversos fatores externos e internos.
+Apliquei a CWT tanto ao PIB quanto aos gastos do consumidor para decompor essas séries em várias escalas de tempo. A transformação forneceu uma matriz de coeficientes que representa a intensidade da relação entre as variáveis em diferentes frequências e momentos.
+Visualizei os resultados da CWT para cada variável em mapas de calor que mostram como a intensidade das interações varia com o tempo e a escala. Isso me permitiu observar diretamente as dinâmicas cíclicas e as mudanças nas relações ao longo do tempo.
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+# Simulando dados econômicos
+np.random.seed(0)
+t = np.linspace(0, 10, 500)  # 10 anos de dados trimestrais
+pib = np.sin(2 * np.pi * 0.2 * t) + 0.5 * np.random.normal(size=len(t))  # PIB com tendência cíclica e ruído
+gastos = np.sin(2 * np.pi * 0.2 * t + np.pi/4) + 0.5 * np.random.normal(size=len(t))  # Gastos com fase alterada
+
+# Análise de wavelet
+scales = np.arange(1, 128)  # Escalas de análise
+cwtmatr_pib, freqs_pib = pywt.cwt(pib, scales, 'cmor1.5-1.0')
+cwtmatr_gastos, freqs_gastos = pywt.cwt(gastos, scales, 'cmor1.5-1.0')
+
+# Visualizando os resultados
+plt.figure(figsize=(12, 6))
+plt.subplot(2, 1, 1)
+plt.imshow(np.abs(cwtmatr_pib), extent=[0, 10, 1, 128], cmap='coolwarm', aspect='auto')
+plt.title('Transformada de Wavelet do PIB')
+plt.ylabel('Escala')
+plt.colorbar()
+
+plt.subplot(2, 1, 2)
+plt.imshow(np.abs(cwtmatr_gastos), extent=[0, 10, 1, 128], cmap='coolwarm', aspect='auto')
+plt.title('Transformada de Wavelet dos Gastos do Consumidor')
+plt.xlabel('Tempo (anos)')
+plt.ylabel('Escala')
+plt.colorbar()
+
+plt.tight_layout()
+plt.show()
