@@ -1,0 +1,40 @@
+Explorei a análise de volatilidade do mercado de ações usando a Transformada de Wavelet Discreta (DWT). Escolhi aplicar essa técnica para decompor os retornos diários do ETF SPY, que replica o S&P 500.
+Primeiramente, obtive os dados de fechamento diários do SPY desde 2010 até 2020 através da biblioteca yfinance. Com esses dados, calculei os retornos logarítmicos diários, que são frequentemente usados em análises financeiras para modelar as variações de preços de ativos de forma mais estável e normalizada.
+Utilizei a wavelet de Daubechies 4 (db4) para decompor os retornos diários em vários níveis de detalhes usando a DWT. Essa transformada separa o sinal original em componentes que representam diferentes frequências de variação, permitindo uma análise detalhada das flutuações de curto e longo prazo.
+Visualizei os retornos diários junto com os coeficientes de detalhe resultantes da transformada. Esses gráficos me permitiram observar claramente como a volatilidade se comporta em diferentes escalas temporais. Os coeficientes em níveis mais altos capturaram tendências de longo prazo e ciclos mais amplos, enquanto os níveis mais baixos focaram em movimentos rápidos e reações do mercado a eventos específicos.
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import pywt
+import yfinance as yf
+
+# Carregando dados de mercado
+data = yf.download('SPY', start='2010-01-01', end='2020-01-01')
+close_prices = data['Close']
+
+# Cálculo dos retornos diários
+returns = np.log(close_prices).diff().dropna()
+
+# Aplicação da Transformada de Wavelet Discreta
+coeffs = pywt.wavedec(returns, 'db4', mode='symmetric', level=4)
+
+# Plotagem da série original e dos detalhes wavelet
+plt.figure(figsize=(12, 10))
+plt.subplot(3, 1, 1)
+plt.plot(returns, label='Retornos Diários')
+plt.title('Retornos Diários do SPY')
+plt.legend()
+
+for i, coeff in enumerate(coeffs[1:], 1):
+    plt.subplot(3, 1, i + 1)
+    plt.plot(coeff, label=f'Detalhes - Nível {i}')
+    plt.title(f'Coeficientes de Detalhe - Nível {i}')
+    plt.legend()
+
+plt.tight_layout()
+plt.show()
+
