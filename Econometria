@@ -1,0 +1,43 @@
+Desenvolvi uma simulação em Python para explorar a relação entre retornos de mercado e variáveis históricas como a variância do mercado. Usei dados sintéticos para representar retornos de mercado, variância e incerteza econômica, que são comuns em estudos de previsibilidade de mercados financeiros.
+ Inicialmente, gerei dados aleatórios para representar os retornos do mercado, a variância do mercado e a incerteza econômica ao longo de 200 períodos. Esses dados simulados servem como uma simplificação dos dados reais que você encontraria em análises econômicas ou financeiras.
+
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
+# Simulate some data
+np.random.seed(0)
+periods = 200
+data = pd.DataFrame({
+    'market_returns': np.random.randn(periods),
+    'market_variance': np.random.randn(periods),
+    'economic_uncertainty': np.random.randn(periods)
+})
+
+# Generate lags of market variance to use as predictors
+for lag in range(1, 5):  # Using lags 1 to 4 as an example
+    data[f'market_variance_lag_{lag}'] = data['market_variance'].shift(lag)
+
+# Simple function to perform regression and plot
+def regress_and_plot(data, dependent_var, independent_vars):
+    data = data.dropna()
+    X = data[independent_vars]
+    y = data[dependent_var]
+    X = sm.add_constant(X)  # Adding a constant for intercept
+
+    model = sm.OLS(y, X).fit()
+    print(model.summary())
+
+    # Plotting the dependent variable and the fitted values
+    plt.figure(figsize=(10, 5))
+    plt.plot(data[dependent_var], label='Actual')
+    plt.plot(model.fittedvalues, label='Fitted', linestyle='--')
+    plt.title(f'Regression of {dependent_var} on {", ".join(independent_vars)}')
+    plt.legend()
+    plt.show()
+
+# Perform regression
+regress_and_plot(data, 'market_returns', ['market_variance_lag_1', 'market_variance_lag_2', 'market_variance_lag_3', 'market_variance_lag_4'])
+
