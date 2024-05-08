@@ -1,0 +1,42 @@
+2- Criei um sinal que combina uma função senoidal com um decaimento exponencial. Usei a Transformada Wavelet Contínua (CWT) para analisar o sinal em diferentes escalas e visualizar o espectro de ondaletas. Ao executar o código, você verá dois gráficos: o primeiro mostrando o sinal com decaimento exponencial no domínio do tempo e o segundo exibindo o espectro de ondaletas, que representa as componentes de frequência em diferentes escalas. O gráfico do sinal no domínio do tempo ilustra de forma eficaz o efeito do decaimento exponencial sobre a amplitude da onda senoidal, enquanto o espectro de ondaletas revela detalhadamente como esse decaimento influencia as diferentes frequências e escalas do sinal.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+# Configurações iniciais para a geração do sinal
+sampling_rate = 1000  # Número de amostras por segundo
+duration = 5.0  # Duração do sinal em segundos
+t = np.linspace(0, duration, int(sampling_rate * duration))  # Criação do vetor de tempo
+decay_rate = 0.1  # Coeficiente de decaimento para a função exponencial
+
+# Criação do sinal que combina uma função senoidal e um decaimento exponencial
+signal = np.exp(-decay_rate * t) * np.sin(2 * np.pi * 5 * t)  # Frequência da senoide é 5 Hz
+
+# Configuração e cálculo da Transformada Wavelet Contínua (CWT)
+wavelet = 'morl'  # Uso da wavelet de Morlet, ideal para análise de frequência
+scales = np.arange(1, 128)  # Especificação das escalas para a análise CWT
+coeffs, freqs = pywt.cwt(signal, scales, wavelet)  # Realização da CWT
+
+# Plotagem dos resultados
+plt.figure(figsize=(12, 6))
+
+# Plotagem do sinal no domínio do tempo
+plt.subplot(2, 1, 1)
+plt.plot(t, signal, label='Sinal com Decaimento')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Amplitude')
+plt.title('Sinal com Decaimento Exponencial')
+plt.legend()
+
+# Plotagem do espectro de ondaletas
+plt.subplot(2, 1, 2)
+plt.imshow(np.abs(coeffs), extent=[0, duration, 1, 128], aspect='auto', cmap='jet')
+plt.colorbar(label='Magnitude')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Escala')
+plt.title('Espectro de Ondaletas')
+plt.gca().invert_yaxis()  # Inverte o eixo Y para melhor visualização das escalas
+
+plt.tight_layout()  # Ajusta o layout para evitar sobreposição
+plt.show()  # Exibe os gráficos
