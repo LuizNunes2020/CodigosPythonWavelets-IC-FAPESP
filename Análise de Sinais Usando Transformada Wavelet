@@ -1,0 +1,55 @@
+1- Desenvolvi um sinal combinando duas ondas senoidais de frequências distintas: uma baixa (5 Hz) e uma alta (250 Hz), para exemplificar diferentes ritmos de variação no sinal. Após a geração desse sinal, introduzi ruído aleatório, simulando as condições comuns em ambientes reais onde os sinais frequentemente enfrentam distúrbios externos. Para analisar e decompor o sinal ruidoso, apliquei a Transformada Wavelet utilizando a wavelet "db4", que me permitiu separar o sinal em vários níveis de detalhe e aproximação.
+
+Durante o processo de visualização, fiz a plotagem do sinal ruidoso junto com o sinal original para facilitar uma comparação imediata. Além disso, apresentei os coeficientes de detalhe obtidos em cada nível da transformada. A eficiência desta técnica analítica depende significativamente da wavelet selecionada e das particularidades do sinal, podendo variar levemente devido à presença do ruído.
+
+Ao analisar os gráficos, observei de forma clara a distinção entre o sinal ruidoso e o original. Esse resultado sublinha a capacidade da Transformada Wavelet de extrair e isolar eficazmente componentes significativos do sinal, mesmo em meio a interferências, demonstrando sua utilidade em análises detalhadas de sinais complexos.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+# Configurações iniciais
+taxa_amostragem = 1000  # Taxa de amostragem do sinal
+duracao = 1.0  # Duração do sinal em segundos
+t = np.arange(0, duracao, 1 / taxa_amostragem)  # Vetor de tempo
+
+# Frequências das ondas senoidais
+frequencia_baixa = 5  # Frequência da onda de baixa frequência (Hz)
+frequencia_alta = 250  # Frequência da onda de alta frequência (Hz)
+
+# Geração do sinal composto
+sinal_basico = np.sin(2 * np.pi * frequencia_baixa * t) + np.sin(2 * np.pi * frequencia_alta * t)
+
+# Adição de ruído gaussiano
+nivel_ruido = 0.5  # Desvio padrão do ruído
+ruido = np.random.normal(0, nivel_ruido, t.size)
+sinal_ruidoso = sinal_basico + ruido
+
+# Definição da wavelet para decomposição
+wavelet = 'db4'
+coeficientes = pywt.wavedec(sinal_ruidoso, wavelet, level=4)
+
+# Preparação da plotagem
+plt.figure(figsize=(12, 8))
+
+# Plotagem do sinal ruidoso e do sinal original
+plt.subplot(5, 1, 1)  # Mudança para acomodar os níveis de decomposição
+plt.plot(t, sinal_ruidoso, label='Sinal com Ruído', color='blue')
+plt.plot(t, sinal_basico, label='Sinal Original', linestyle='dashed', linewidth=2, color='black')
+plt.title('Sinal Original e Ruidoso')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Amplitude')
+plt.legend()
+
+# Plotagem dos coeficientes de aproximação e detalhe
+for i in range(4):
+    plt.subplot(5, 1, i + 2)
+    plt.plot(coeficientes[i + 1], label=f'Detalhes - Nível {i + 1}')
+    plt.title(f'Coeficientes de Detalhe - Nível {i + 1}')
+    plt.xlabel('Amostra')
+    plt.ylabel('Amplitude')
+    plt.legend()
+
+plt.tight_layout()
+plt.show()
+
