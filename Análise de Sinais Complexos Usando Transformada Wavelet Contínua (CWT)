@@ -1,0 +1,61 @@
+Criei um sinal composto por duas ondas senoidais de 5 Hz e 20 Hz. Em seguida, adicionei ruído ao sinal para simular condições reais, resultando em um sinal ruidoso. Utilizei a Transformada Wavelet Contínua (CWT) com a wavelet "morl" e uma variedade de escalas para analisar o espectro de ondaletas do sinal ruidoso. No terceiro gráfico, empreguei a função specgram da biblioteca Matplotlib para calcular a Transformada de Fourier de Tempo Curto (STFT) do mesmo sinal. O espectrograma resultante mostra a intensidade das frequências ao longo do tempo.
+
+Ao executar o código, pode observar três gráficos: o primeiro exibe a combinação das duas ondas senoidais com ruído aleatório, onde a superposição das ondas com variações irregulares devido ao ruído é claramente visível. O segundo gráfico revela a intensidade das frequências do sinal em várias escalas, destacando com precisão as componentes de 5 Hz e 20 Hz. O terceiro gráfico mostra como as frequências do sinal variam ao longo do tempo, com as bandas de frequência de 5 Hz e 20 Hz aparecendo como regiões de cores mais intensas, indicando a presença contínua dessas frequências durante a duração do sinal.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.signal as signal
+import pywt
+
+# Configurações iniciais
+Fs = 500  # Taxa de amostragem em Hz
+T = 1/Fs  # Intervalo de amostragem em segundos
+t = np.arange(0, 1, T)  # Vetor de tempo para 1 segundo
+
+# Frequências das ondas senoidais
+f1 = 5  # Frequência da primeira onda senoidal em Hz
+f2 = 20 # Frequência da segunda onda senoidal em Hz
+
+# Geração das ondas senoidais
+y1 = np.sin(2 * np.pi * f1 * t)  # Onda senoidal em 5 Hz
+y2 = np.sin(2 * np.pi * f2 * t)  # Onda senoidal em 20 Hz
+y = y1 + y2  # Superposição das duas ondas senoidais
+
+# Adição de ruído gaussiano ao sinal
+noise = np.random.normal(0, 0.5, len(t))  # Ruído com média 0 e desvio padrão 0.5
+y_noisy = y + noise  # Sinal ruidoso resultante
+
+# Cálculo do Espectro de Ondaletas usando CWT
+wavelet = 'morl'  # Escolha da wavelet Morlet para a análise
+scales = np.arange(1, 128)  # Escalas utilizadas para a transformada
+coefficients, frequencies = pywt.cwt(y_noisy, scales, wavelet)  # Cálculo da CWT
+
+# Cálculo da Transformada de Fourier de Tempo Curto (STFT) usando specgram
+plt.figure(figsize=(12, 18))
+
+# Plotagem do sinal ruidoso
+plt.subplot(3, 1, 1)
+plt.plot(t, y_noisy, label='Sinal Composto Ruidoso')
+plt.title('Sinal Ruidoso')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Amplitude')
+plt.legend()
+
+# Plotagem do Espectro de Ondaletas (CWT)
+plt.subplot(3, 1, 2)
+plt.imshow(np.abs(coefficients), aspect='auto', cmap='jet', extent=[0, 1, 1, 128])
+plt.colorbar(label='Magnitude')
+plt.title('Espectro de Ondaletas (CWT)')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Escala')
+
+# Plotagem do Espectrograma (STFT)
+plt.subplot(3, 1, 3)
+Pxx, freqs, bins, im = plt.specgram(y_noisy, NFFT=256, Fs=Fs, noverlap=128, cmap='jet')
+plt.colorbar(label='dB')
+plt.title('Espectrograma (STFT)')
+plt.xlabel('Tempo (s)')
+plt.ylabel('Frequência')
+
+plt.tight_layout()
+plt.show()
