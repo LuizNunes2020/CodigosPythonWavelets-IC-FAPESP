@@ -1,0 +1,74 @@
+O código demonstra como realizar a decomposição wavelet 2D (DWT) em uma imagem, utilizando a técnica de processamento de sinais que descompõe um sinal em diferentes escalas de frequência. Essa abordagem é particularmente útil em aplicações de processamento de imagem e análise de dados.
+
+Após executar o código, pude observar os seguintes resultados:
+
+Imagem Original: Esta é a imagem do astronauta em tons de cinza, que serve como ponto de partida para a análise.
+
+Aproximação nível 2 (cA2): Esta imagem mostra a componente de aproximação após duas decomposições wavelet. A componente de aproximação captura a informação de baixa frequência da imagem, funcionando quase como uma versão "borrada" ou "suavizada" da imagem original, destacando as áreas de maior uniformidade.
+
+Detalhes Diagonais nível 1 (cD1): Esta imagem exibe os detalhes diagonais da primeira decomposição wavelet. Os coeficientes de detalhes capturam as informações de alta frequência, ou detalhes da imagem, em diferentes direções. Especificamente, os detalhes diagonais ilustram as variações diagonais na imagem, como bordas e texturas, que são cruciais para a compreensão da estrutura da imagem.
+
+Detalhes Horizontais nível 2 (cH2): Esta imagem mostra os detalhes horizontais após duas decomposições wavelet, destacando as variações horizontais na imagem, como bordas horizontais e estruturas, o que é útil para analisar elementos lineares horizontais na imagem.
+
+Detalhes Verticais nível 2 (cV2): De forma semelhante, esta imagem revela as variações verticais após duas decomposições wavelet, como bordas verticais e estruturas verticais, facilitando a análise de componentes verticais que são importantes em muitas aplicações de processamento de imagem.
+
+Imagem Reconstruída: Esta é a imagem reconstruída a partir dos coeficientes wavelet após a decomposição. Idealmente, se a decomposição wavelet e a subsequente reconstrução forem perfeitas, essa imagem deve se assemelhar muito à imagem original. Na prática, pode haver pequenas diferenças devido a arredondamentos e outros fatores, mas geralmente a imagem reconstruída é muito próxima da original, confirmando a eficácia da transformação wavelet em preservar as características essenciais da imagem durante o processo de decomposição e reconstrução.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+from skimage import data
+
+# 1. Importação da imagem e conversão para tons de cinza
+img = data.astronaut()  # Uso da imagem 'astronaut' da biblioteca skimage
+img_gray = np.mean(img[..., :3], axis=2)  # Conversão para tons de cinza
+
+# 2. Decomposição Wavelet 2D usando a wavelet 'db1' até o nível 2
+coeffs = pywt.wavedec2(img_gray, 'db1', level=2)
+cA2, (cH2, cV2, cD2), (cH1, cV1, cD1) = coeffs  # Extração de coeficientes
+
+# 3. Reconstrução da imagem a partir dos coeficientes wavelet
+reconstructed = pywt.waverec2(coeffs, 'db1')
+
+# 4. Visualização dos resultados
+plt.figure(figsize=(12, 8))
+
+# 4.1 Imagem Original
+plt.subplot(2, 3, 2)
+plt.imshow(img_gray, cmap='gray')
+plt.title('Imagem Original')
+plt.colorbar(shrink=0.5)
+
+# 4.2 Aproximação nível 2 (cA2)
+plt.subplot(2, 3, 3)
+plt.imshow(cA2, cmap='gray')
+plt.title('Aproximação nível 2 (cA2)')
+plt.colorbar(shrink=0.5)
+
+# 4.3 Detalhes Diagonais nível 1 (cD1)
+plt.subplot(2, 3, 4)
+plt.imshow(cD1, cmap='gray')
+plt.title('Detalhes Diagonais nível 1 (cD1)')
+plt.colorbar(shrink=0.5)
+
+# 4.4 Detalhes Horizontais nível 2 (cH2)
+plt.subplot(2, 3, 5)
+plt.imshow(cH2, cmap='gray')
+plt.title('Detalhes Horizontais nível 2 (cH2)')
+plt.colorbar(shrink=0.5)
+
+# 4.5 Detalhes Verticais nível 2 (cV2)
+plt.subplot(2, 3, 6)
+plt.imshow(cV2, cmap='gray')
+plt.title('Detalhes Verticais nível 2 (cV2)')
+plt.colorbar(shrink=0.5)
+
+# 4.6 Imagem Reconstruída
+plt.subplot(2, 3, 1)
+plt.imshow(reconstructed, cmap='gray')
+plt.title('Imagem Reconstruída')
+plt.colorbar(shrink=0.5)
+
+plt.tight_layout()
+plt.show()
