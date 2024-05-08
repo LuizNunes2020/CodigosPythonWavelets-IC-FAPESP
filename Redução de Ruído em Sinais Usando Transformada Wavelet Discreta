@@ -1,0 +1,69 @@
+Produzi um sinal sintético combinando duas ondas senoidais com frequências de 5 Hz e 20 Hz. Após a criação desse sinal, adicionei ruído aleatório, resultando em um sinal ruidoso. Para tratar e suavizar esse sinal, utilizei a técnica da transformação wavelet discreta. Com a decomposição wavelet, separei o sinal em vários coeficientes que representam detalhes em diferentes escalas. Em seguida, apliquei uma limiarização a esses coeficientes para minimizar o ruído e, posteriormente, reconstruí o sinal a partir dos coeficientes limiarizados.
+
+Ao analisar os resultados, observei três gráficos:
+
+Sinal Ruidoso: Este gráfico mostra o sinal composto original com o ruído que adicionei. Ele exibe uma combinação das ondas senoidais com perturbações aleatórias devido ao ruído.
+
+Sinal Original: Representa o sinal puro, sem a adição de qualquer ruído, mostrando claramente as duas ondas senoidais combinadas.
+
+Sinal Suavizado: Aqui, é possível ver o sinal após o processo de suavização usando a transformação wavelet. As perturbações aleatórias do ruído foram em grande parte eliminadas, e o sinal se assemelha mais ao sinal original, embora possa ter perdido alguma definição ou detalhe em comparação com o sinal original puro.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+# Configurações iniciais para a geração do sinal
+Fs = 500  # Taxa de amostragem em Hz
+T = 1 / Fs  # Intervalo de amostragem em segundos
+t = np.linspace(0, 1, int(Fs))  # Vetor de tempo para 1 segundo
+
+# Geração do sinal composto por duas ondas senoidais de diferentes frequências
+f1 = 5   # Frequência da primeira onda senoidal em Hz
+f2 = 20  # Frequência da segunda onda senoidal em Hz
+sinal_original = np.sin(2 * np.pi * f1 * t) + np.sin(2 * np.pi * f2 * t)
+
+# Adição de ruído aleatório para simular um ambiente realista
+nivel_ruido = 0.5  # Intensidade do ruído
+sinal_ruidoso = sinal_original + nivel_ruido * np.random.randn(t.size)
+
+# Decomposição do sinal ruidoso usando a transformação wavelet discreta
+wavelet = 'db1'  # Tipo de wavelet
+coef_wavelet = pywt.wavedec(sinal_ruidoso, wavelet, level=4)
+
+# Limiarização para minimizar o ruído
+limiar = 0.8 * max(np.max(np.abs(c)) for c in coef_wavelet)
+coef_limiarizados = [pywt.threshold(c, limiar, mode='soft') for c in coef_wavelet]
+
+# Reconstrução do sinal a partir dos coeficientes limiarizados
+sinal_suavizado = pywt.waverec(coef_limiarizados, wavelet)
+
+# Plotagem dos resultados
+plt.figure(figsize=(12, 9))
+
+# Gráfico do sinal ruidoso
+plt.subplot(3, 1, 1)
+plt.plot(t, sinal_ruidoso, label='Sinal Ruidoso')
+plt.title("Sinal Ruidoso")
+plt.xlabel("Tempo (s)")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# Gráfico do sinal original
+plt.subplot(3, 1, 2)
+plt.plot(t, sinal_original, label='Sinal Original')
+plt.title("Sinal Original")
+plt.xlabel("Tempo (s)")
+plt.ylabel("Amplitude")
+plt.legend()
+
+# Gráfico do sinal suavizado
+plt.subplot(3, 1, 3)
+plt.plot(t, sinal_suavizado, label='Sinal Suavizado')
+plt.title("Sinal Suavizado")
+plt.xlabel("Tempo (s)")
+plt.ylabel("Amplitude")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
