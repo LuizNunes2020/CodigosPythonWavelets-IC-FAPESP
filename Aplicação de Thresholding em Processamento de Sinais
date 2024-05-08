@@ -1,0 +1,62 @@
+ Neste código, realizei operações de thresholding (limiarização) utilizando a biblioteca PyWavelets (pywt) do Python. O thresholding é uma técnica comumente empregada em processamento de sinais e imagens para remover ou atenuar ruídos e realçar informações essenciais. Para este propósito, criei um sinal que é a combinação de várias funções senoidais com adição de ruído significativo. Em seguida, apliquei thresholding nesse sinal para tentar eliminar o ruído presente.
+
+Para visualizar o efeito do thresholding, plotei tanto o sinal original quanto o sinal após o processo de limiarização. Após executar o código, é possível observar claramente o contraste entre o sinal original, que contém ruído significativo, e o sinal após o thresholding, onde a maior parte do ruído foi eficazmente eliminada.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+def generate_noisy_signal(x):
+    """
+    Gera um sinal senoidal com a adição de ruído gaussiano.
+
+    Parâmetros:
+    - x : numpy.ndarray
+        Array de valores x para geração do sinal senoidal.
+
+    Retorna:
+    - numpy.ndarray
+        Sinal senoidal com ruído adicionado.
+    """
+    signal = np.sin(x)  # Geração do sinal senoidal.
+    noise = np.random.normal(0, 1, len(x))  # Adição de ruído gaussiano com média 0 e desvio padrão 1.
+    return signal + noise
+
+def apply_wavelet_thresholding(data, threshold_value):
+    """
+    Aplica thresholding no sinal utilizando a transformada wavelet discreta.
+
+    Parâmetros:
+    - data : numpy.ndarray
+        Sinal original com ruído.
+    - threshold_value : float
+        Valor de limiar para a aplicação do thresholding.
+
+    Retorna:
+    - numpy.ndarray
+        Sinal após aplicação do thresholding.
+    """
+    coeffs = pywt.wavedec(data, 'db1', level=4)  # Decomposição wavelet.
+    coeffs_thresholded = [pywt.threshold(c, threshold_value, mode='soft') for c in coeffs]  # Aplicação do thresholding.
+    return pywt.waverec(coeffs_thresholded, 'db1')  # Reconstrução do sinal a partir dos coeficientes limiarizados.
+
+def main():
+    x = np.linspace(0, 4 * np.pi, 500)  # Geração de pontos x para o sinal.
+    original_signal = generate_noisy_signal(x)  # Geração do sinal com ruído.
+    thresholded_signal = apply_wavelet_thresholding(original_signal, 0.7)  # Aplicação do thresholding com limiar de 0.7.
+
+    # Plotagem dos sinais
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, original_signal, label='Sinal original com ruído', alpha=0.7)
+    plt.plot(x, thresholded_signal, label='Sinal após thresholding', color='red', linewidth=2)
+    plt.title("Demonstração de Thresholding usando PyWavelets")
+    plt.xlabel('x')
+    plt.ylabel('Amplitude')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+
