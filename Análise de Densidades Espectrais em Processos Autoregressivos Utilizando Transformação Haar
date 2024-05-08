@@ -1,0 +1,48 @@
+
+Neste exemplo, foquei em explorar as densidades espectrais de diferentes níveis na transformação Haar de um processo autoregressivo AR(1) com um coeficiente 𝜙 = − 0.6.
+Comecei criando um processo AR(1), onde cada valor é dependente do valor anterior, ajustado por um coeficiente  𝜙 e adicionado a um ruído branco. Essa dependência cria um padrão que é fundamental para entender como as transformações subsequentes alteram a representação do sinal.
+Após gerar o processo AR(1), apliquei a transformação Haar, que é uma técnica de análise de wavelet usada para decompor sinais em componentes de frequência e escala. Esta transformação me permitiu observar as variações do sinal em diferentes níveis de detalhe, desde o mais fino até o mais grosso.
+Utilizei a função de densidade espectral de potência para calcular e visualizar como as frequências do sinal são distribuídas nos vários níveis da transformação Haar. Isto foi feito para cada nível, permitindo uma comparação direta entre o sinal original e suas decomposições.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parâmetros
+phi = -0.6
+n = 1024  # Número de pontos de dados
+levels = 4  # Número de níveis da decomposição Haar
+
+# Gerar o processo AR(1)
+np.random.seed(0)
+X_ar = np.zeros(n)
+epsilon = np.random.normal(0, 1, n)  # Ruído branco
+for t in range(1, n):
+    X_ar[t] = phi * X_ar[t-1] + epsilon[t]
+
+# Transformação Haar
+haar_transform = [X_ar.copy()]  # Incluir o nível original
+for level in range(1, levels + 1):
+    # Aplicar média móvel para simular a aproximação na decomposição Haar
+    X_ar = (X_ar[:-1:2] + X_ar[1::2]) / 2
+    haar_transform.append(X_ar.copy())
+
+# Plotagem das densidades espectrais
+plt.figure(figsize=(12, 10))
+
+# Painel (a) - Densidade espectral do processo original e nível mais fino
+plt.subplot(2, 1, 1)
+plt.psd(haar_transform[0], NFFT=512, Fs=1, label='Processo Original (AR1)')
+plt.psd(haar_transform[-1], NFFT=512, Fs=1, label='Nível Mais Fino (Detalhe)')
+plt.title('Densidade Espectral - Processo Original vs. Nível Mais Fino')
+plt.legend()
+
+# Painel (b) - Densidades espectrais superpostas para os primeiros quatro níveis
+plt.subplot(2, 1, 2)
+for i in range(1, levels + 1):
+    plt.psd(haar_transform[i], NFFT=512, Fs=1, label=f'Nível {i}')
+plt.title('Densidades Espectrais - Níveis 1 a 4')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
