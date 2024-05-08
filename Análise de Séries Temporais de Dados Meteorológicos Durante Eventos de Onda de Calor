@@ -1,0 +1,53 @@
+Neste exemplo, explorei a análise de dados de velocidade e temperatura do ar coletados durante um evento de onda de calor na Floresta Duke, utilizando Python para processar e visualizar as informações. Meu foco estava em compreender como essas variáveis se comportaram ao longo do tempo sob condições extremas de calor.
+Inicializei o ambiente de programação definindo os parâmetros de amostragem, como a frequência de amostragem e o número total de pontos de dados. Isso me permitiu estabelecer uma base sólida para a simulação e análise dos dados.
+Simulei as séries temporais para os três componentes de velocidade do vento e para a temperatura do ar. Para cada série, utilizei uma combinação de funções senoidais para modelar a variação periódica e ruído gaussiano para introduzir variações aleatórias, refletindo a flutuação natural que esperaríamos em medições ambientais reais.
+Criei gráficos para cada um dos componentes de dados usando subplots, permitindo uma comparação visual clara entre os diferentes tipos de dados coletados. Cada gráfico foi configurado para mostrar apenas os primeiros 60 segundos de dados, proporcionando uma visão detalhada das variações iniciais sem sobrecarregar visualmente.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Definindo os parâmetros de amostragem
+fs = 56  # frequência de amostragem em Hz
+Tp = 19.5 * 60  # período de amostragem em segundos
+N = 65536  # número de medições
+
+# Gerando um array de tempo com base na frequência de amostragem e período
+t = np.linspace(0, Tp, N)
+
+# Simulando os dados de medição
+U = np.sin(2 * np.pi * 0.1 * t) + 0.1 * np.random.randn(N)  # componente de velocidade U
+V = np.sin(2 * np.pi * 0.2 * t) + 0.1 * np.random.randn(N)  # componente de velocidade V
+W = np.sin(2 * np.pi * 0.3 * t) + 0.1 * np.random.randn(N)  # componente de velocidade W
+T = 20 + 10 * np.sin(2 * np.pi * 0.01 * t) + 2 * np.random.randn(N)  # temperatura do ar T
+
+# Criando uma única figura com subplots 2x2
+fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+# Plotando cada conjunto de dados em um subplot
+axs[0, 0].plot(t[:fs*60], U[:fs*60])
+axs[0, 0].set_title('Componente de Velocidade U')
+axs[0, 0].set_xlabel('Tempo (s)')
+axs[0, 0].set_ylabel('Velocidade (m/s)')
+
+axs[0, 1].plot(t[:fs*60], V[:fs*60])
+axs[0, 1].set_title('Componente de Velocidade V')
+axs[0, 1].set_xlabel('Tempo (s)')
+axs[0, 1].set_ylabel('Velocidade (m/s)')
+
+axs[1, 0].plot(t[:fs*60], W[:fs*60])
+axs[1, 0].set_title('Componente de Velocidade W')
+axs[1, 0].set_xlabel('Tempo (s)')
+axs[1, 0].set_ylabel('Velocidade (m/s)')
+
+axs[1, 1].plot(t[:fs*60], T[:fs*60])
+axs[1, 1].set_title('Temperatura do Ar T')
+axs[1, 1].set_xlabel('Tempo (s)')
+axs[1, 1].set_ylabel('Temperatura (ºC)')
+
+# Ajustando o layout para evitar sobreposição
+plt.tight_layout()
+
+# Salvando a figura combinada
+plt.savefig('combined_square_graphs.png')
+plt.show()
