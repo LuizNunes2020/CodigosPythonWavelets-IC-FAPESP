@@ -50,6 +50,11 @@ for i in range(4):
     plt.ylabel('Amplitude')
     plt.legend()
 
+
+
+
+
+
 plt.tight_layout()
 plt.show()
 
