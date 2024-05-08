@@ -1,5 +1,8 @@
 Desenvolvi uma simulação em Python para explorar a relação entre retornos de mercado e variáveis históricas como a variância do mercado. Usei dados sintéticos para representar retornos de mercado, variância e incerteza econômica, que são comuns em estudos de previsibilidade de mercados financeiros.
- Inicialmente, gerei dados aleatórios para representar os retornos do mercado, a variância do mercado e a incerteza econômica ao longo de 200 períodos. Esses dados simulados servem como uma simplificação dos dados reais que você encontraria em análises econômicas ou financeiras.
+Inicialmente, gerei dados aleatórios para representar os retornos do mercado, a variância do mercado e a incerteza econômica ao longo de 200 períodos. Esses dados simulados servem como uma simplificação dos dados reais que você encontraria em análises econômicas ou financeiras.
+Como parte do processo, criei lags (atrasos) da variância do mercado para usar como preditores. Isso é feito para investigar como informações passadas podem influenciar ou prever retornos futuros, um conceito fundamental em análises de séries temporais econômicas.
+Implementei uma regressão de mínimos quadrados ordinários (OLS) usando a biblioteca statsmodels. Adicionei uma constante ao modelo para incluir o intercepto e ajustei o modelo para explorar como os lags da variância do mercado podem prever os retornos do mercado.
+Após ajustar o modelo, plotei os retornos reais do mercado contra os valores ajustados pela regressão. Essa visualização ajuda a comparar visualmente o desempenho do modelo e a ver quão bem os preditores explicam a variabilidade nos retornos do mercado.
 
 
 import numpy as np
