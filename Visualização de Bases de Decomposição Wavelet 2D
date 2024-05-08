@@ -1,0 +1,40 @@
+Este código demonstra como plotar diferentes bases de decomposição wavelet 2D utilizando a biblioteca PyWavelets do Python. Utilizei funções internas do módulo pywt._doc_utils para facilitar a visualização das bases de wavelet. Em particular, explorei não só a decomposição padrão onde apenas a subbanda de aproximação é decomposta em níveis adicionais, mas também a transformação de pacote wavelet. Na transformação de pacote wavelet, todos os componentes wavelet do primeiro nível são decompostos em níveis subsequentes, o que é ilustrado de forma clara no terceiro painel (inferior esquerdo) da figura.
+
+from itertools import product
+import numpy as np
+from matplotlib import pyplot as plt
+from pywt._doc_utils import (wavedec2_keys, draw_2d_wp_basis, draw_2d_fswavedecn_basis)
+
+# Configurações da figura
+shape = (512, 512)  # Dimensões da base de wavelet
+max_lev = 4  # Número máximo de níveis de decomposição para desenhar
+label_levels = 2  # Número de níveis a rotular explicitamente nos gráficos
+
+# Preparação da figura e dos eixos
+fig, axes = plt.subplots(2, 2, figsize=[8, 8])
+axes = axes.ravel()
+
+# Plotar uma base DWT padrão de 5 níveis
+draw_2d_wp_basis(shape, wavedec2_keys(max_lev), ax=axes[0], label_levels=label_levels)
+axes[0].set_title(f'wavedec2 ({max_lev} levels)')
+
+# Plotar para o caso completamente separável
+draw_2d_fswavedecn_basis(shape, max_lev, ax=axes[1], label_levels=label_levels)
+axes[1].set_title(f'fswavedecn ({max_lev} levels)')
+
+# Obter todas as chaves correspondentes a uma decomposição completa de pacotes wavelet
+wp_keys = list(product(['a', 'd', 'h', 'v'], repeat=max_lev))
+draw_2d_wp_basis(shape, wp_keys, ax=axes[2], label_levels=0)
+axes[2].set_title('Wavelet Packet\n(full: {} levels)'.format(max_lev))
+
+# Plotar um exemplo de base de pacote wavelet personalizada
+keys = ['aaaa', 'aaad', 'aaah', 'aaav', 'aad', 'aah', 'aava', 'aavd',
+        'aavh', 'aavv', 'ad', 'ah', 'ava', 'avd', 'avh', 'avv', 'd', 'h',
+        'vaa', 'vad', 'vah', 'vav', 'vd', 'vh', 'vv']
+draw_2d_wp_basis(shape, keys, ax=axes[3], label_levels=label_levels)
+axes[3].set_title('Wavelet Packet\n(custom)')
+
+# Ajustar o layout e mostrar a figura
+plt.tight_layout()
+plt.show()
+
