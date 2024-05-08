@@ -1,0 +1,62 @@
+Criei um sinal sintético combinando duas ondas senoidais de diferentes frequências. Este sinal serve como uma base para explorar a capacidade da CWT de decompor um sinal em suas componentes de frequência, o que é essencial para muitas aplicações práticas em processamento de sinais, como na análise de sinais biomédicos ou em sistemas de comunicação.
+
+Para visualizar este processo, plotei primeiro o sinal original, que claramente mostra a combinação das duas ondas senoidais. Em seguida, apliquei a transformada wavelet contínua, utilizando a wavelet de Morlet para destacar como as frequências variam ao longo do tempo. A wavelet de Morlet foi escolhida devido à sua capacidade de fornecer uma boa balanceamento entre resolução temporal e frequencial.
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pywt
+
+def generate_signal(x):
+    """
+    Gera um sinal sintético combinando duas ondas senoidais de diferentes frequências.
+
+    Parâmetros:
+        x (numpy.ndarray): Array de valores x para gerar o sinal.
+
+    Retorna:
+        numpy.ndarray: Sinal resultante da soma das duas ondas senoidais.
+    """
+    return np.sin(x) + np.sin(4 * x)  # Soma de uma senoide simples e outra com frequência quádrupla
+
+def plot_wavelet(ax, signal, scales, wavelet, title=""):
+    """
+    Plota a transformada wavelet contínua do sinal.
+
+    Parâmetros:
+        ax (matplotlib.axes.Axes): O eixo em que o gráfico será desenhado.
+        signal (numpy.ndarray): O sinal a ser transformado.
+        scales (numpy.ndarray): Escalas utilizadas para a transformação wavelet.
+        wavelet (str): Nome da wavelet a ser utilizada na transformação.
+        title (str): Título do gráfico.
+    """
+    coefficients, frequencies = pywt.cwt(signal, scales, wavelet)
+    ax.imshow(np.abs(coefficients), aspect='auto', extent=[0, len(signal), scales[0], scales[-1]], cmap='jet', interpolation='bilinear')
+    ax.set_title(title)
+    ax.set_ylabel("Scale")
+    ax.set_xlabel("Time")
+
+def main():
+    x = np.linspace(0, 10 * np.pi, 1000)  # Gera um espaço linear de 0 a 10π
+    signal = generate_signal(x)  # Gera o sinal sintético
+
+    # Definindo escalas para a transformada wavelet contínua
+    scales = np.arange(1, 128)  # Define um conjunto de escalas de 1 a 127
+
+    # Configuração do gráfico
+    fig, ax = plt.subplots(2, 1, figsize=(10, 8))
+
+    # Plotando o sinal original
+    ax[0].plot(x, signal, label='Sinal Original')
+    ax[0].set_title("Sinal Original")
+    ax[0].set_xlabel("Time")
+    ax[0].set_ylabel("Amplitude")
+    ax[0].legend()
+
+    # Plotando a transformada wavelet contínua
+    plot_wavelet(ax[1], signal, scales, 'cmor', "Transformada Wavelet Contínua (CWT) usando wavelet Morlet")
+
+    plt.tight_layout()  # Ajusta o layout para evitar sobreposição
+    plt.show()
+
+if __name__ == "__main__":
+    main()
