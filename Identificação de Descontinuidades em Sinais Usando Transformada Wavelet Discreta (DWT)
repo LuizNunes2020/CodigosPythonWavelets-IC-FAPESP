@@ -1,0 +1,42 @@
+No código que desenvolvi, demonstrei como utilizar a Transformada Wavelet Discreta (DWT) para identificar descontinuidades em um sinal.
+Primeiramente, criei um sinal sintético combinando duas funções senoidais de diferentes frequências. Para introduzir uma complexidade adicional, adicionei uma descontinuidade brusca no sinal. 
+Usei a wavelet de Daubechies ('db1'), que é adequada para capturar transições abruptas devido às suas propriedades de localização no tempo e frequência. Configurei a transformação para decompor o sinal em quatro níveis, o que me permitiu observar detalhes em diferentes escalas de frequência.
+Ao plotar os coeficientes de detalhe, pude visualizar como a descontinuidade influencia os coeficientes em vários níveis. Utilizei um limiar para destacar os coeficientes que eram significantemente afetados pela descontinuidade. 
+
+
+import numpy as np
+import pywt
+import matplotlib.pyplot as plt
+
+# Configuração inicial
+N = 512  # Número total de pontos de dados
+t = np.linspace(0, 1, N)  # Vetor de tempo de 0 a 1
+threshold = 0.5  # Limiar para identificar coeficientes significativos
+
+# 1. Criar um sinal com descontinuidade.
+sinal = np.sin(2 * np.pi * 7 * t)  # Sinal senoidal
+sinal[N//4:N//2] = 1  # Introduzir uma descontinuidade brusca no sinal
+
+# 2. Aplicar a Decomposição Wavelet Discreta (DWT).
+wavelet = 'db1'  # Wavelet de Daubechies com 1 vanishing moment
+level = 4  # Número de níveis de decomposição
+coeffs = pywt.wavedec(sinal, wavelet, level=level)
+details = coeffs[1:]  # Ignorar o coeficiente de aproximação
+
+# 3. Visualizar os coeficientes de detalhe para identificar descontinuidades.
+plt.figure(figsize=(10, 6))
+for i, d in enumerate(details, 1):
+    plt.subplot(len(details), 1, i)
+    plt.plot(d, label=f'Detalhes - Nível {i}')
+    plt.ylabel(f'Nível {i}')
+    plt.xlim(0, N)
+
+    # Destacar coeficientes significativos acima do limiar em vermelho.
+    significant_indices = np.abs(d) > threshold
+    plt.plot(np.where(significant_indices)[0], d[significant_indices], 'r.', label='Significativos')
+    plt.legend()
+
+plt.xlabel('Amostra')
+plt.tight_layout()
+plt.savefig("wavelet_output.png")  # Salvar a figura antes de mostrar.
+plt.show()
